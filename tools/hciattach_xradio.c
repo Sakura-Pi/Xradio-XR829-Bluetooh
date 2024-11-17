@@ -757,6 +757,16 @@ static void xradio_hci_send_cmd(int fd, unsigned char *buf, int len)
  */
 static int check_bdaddr_valid(unsigned char *buf)
 {
+	int i = 0;
+	unsigned char null_mac_addr[6] = {0, 0, 0, 0, 0, 0};
+	unsigned char read_mac_addr[6] = {0};
+	for(i = 0; i < 6; i++ ) {
+		read_mac_addr[i] = buf[i+7];
+	}
+	if (!memcmp(read_mac_addr, null_mac_addr, 6)) {
+		printf("bdaddr is null, not valid\n");
+		return 0;
+	}
 	if (buf[9] == 0x9e && buf[8] == 0x8b
 			&& (buf[7] & ~(0x3f)) == 0) {
 		printf("bdaddr is not valid\n");
