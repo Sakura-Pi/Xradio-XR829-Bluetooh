@@ -51,6 +51,10 @@
 
 #include "hciattach.h"
 
+#ifndef XRADIO_VENDOR_VERSION
+#define XRADIO_VENDOR_VERSION "1.0.3.B"
+#endif
+
 struct uart_t {
 	char *type;
 	int  m_id;
@@ -279,9 +283,14 @@ static int bcm43xx(int fd, struct uart_t *u, struct termios *ti)
 	return bcm43xx_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
 }
 
-static int xradio(int fd, struct uart_t *u, struct termios *ti)
+static int xradio_xr829(int fd, struct uart_t *u, struct termios *ti)
 {
-	return xradio_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
+	return xradio_xr829_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
+}
+
+static int xradio_xr819s(int fd, struct uart_t *u, struct termios *ti)
+{
+	return xradio_xr819s_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
 }
 
 static int read_check(int fd, void *buf, int count)
@@ -1096,8 +1105,15 @@ struct uart_t uart[] = {
 	{ "bcm43xx",    0x0000, 0x0000, HCI_UART_H4,   115200, 3000000,
 				FLOW_CTL, DISABLE_PM, NULL, bcm43xx, NULL  },
 
-	{ "xradio",0x0000, 0x0000, HCI_UART_H4,   115200, 1500000,
-	0, DISABLE_PM, NULL, xradio, NULL},
+	/* Xradio XR829 */
+	{ "xradio",    0x0000, 0x0000, HCI_UART_H4,   115200, 1500000,
+				0, DISABLE_PM, NULL, xradio_xr829, NULL  },
+
+	{ "xr829",    0x0000, 0x0000, HCI_UART_H4,   115200, 1500000,
+				0, DISABLE_PM, NULL, xradio_xr829, NULL },
+
+	{ "xr819s",    0x0000, 0x0000, HCI_UART_H4,   115200, 1500000,
+				0, DISABLE_PM, NULL, xradio_xr819s, NULL },
 
 	{ "ath3k",    0x0000, 0x0000, HCI_UART_ATH3K, 115200, 115200,
 			FLOW_CTL, DISABLE_PM, NULL, ath3k_ps, ath3k_pm  },
@@ -1250,6 +1266,7 @@ static void usage(void)
 			" <tty> <type | id> [speed] [flow|noflow]"
 			" [sleep|nosleep] [bdaddr]\n");
 	printf("\thciattach -l\n");
+	printf("\thciattach -v\n");
 }
 
 int main(int argc, char *argv[])
@@ -1269,7 +1286,7 @@ int main(int argc, char *argv[])
 	printpid = 0;
 	raw = 0;
 
-	while ((opt=getopt(argc, argv, "bnpt:s:lr")) != EOF) {
+	while ((opt=getopt(argc, argv, "bnpt:s:lrv")) != EOF) {
 		switch(opt) {
 		case 'b':
 			send_break = 1;
@@ -1301,6 +1318,10 @@ int main(int argc, char *argv[])
 		case 'r':
 			raw = 1;
 			break;
+
+		case 'v':
+			printf("%s\n", XRADIO_VENDOR_VERSION);
+			exit(0);
 
 		default:
 			usage();
