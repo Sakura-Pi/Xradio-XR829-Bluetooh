@@ -340,7 +340,7 @@ static gboolean intr_watch_cb(GIOChannel *chan, GIOCondition cond, gpointer data
 	btd_service_disconnecting_complete(idev->service, 0);
 
 	/* Enter the auto-reconnect mode if needed */
-	input_device_enter_reconnect_mode(idev);
+	// input_device_enter_reconnect_mode(idev);
 
 	return FALSE;
 }
