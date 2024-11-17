@@ -1005,6 +1005,19 @@ static int bcm2035(int fd, struct uart_t *u, struct termios *ti)
 	return 0;
 }
 
+// add aic Bluetooth init and post function.
+static int aic_init(int fd, struct uart_t *u, struct termios *ti)
+{
+	fprintf(stderr, "AIC Bluetooth init uart with init speed:%d, final_speed:%d, type:HCI UART %s\n", u->init_speed, u->speed, (u->proto == HCI_UART_H4)? "H4":"H5" );
+	return aic_config_init(fd, u, ti);
+}
+
+static int aic_post(int fd, struct uart_t *u, struct termios *ti)
+{
+	fprintf(stderr, "AIC Bluetooth post process\n");
+	return aic_config_post(fd, u, ti);
+}
+
 struct uart_t uart[] = {
 	{ "any",        0x0000, 0x0000, HCI_UART_H4,   115200, 115200,
 				FLOW_CTL, DISABLE_PM, NULL, NULL     },
@@ -1131,8 +1144,12 @@ struct uart_t uart[] = {
 			0, DISABLE_PM, NULL, NULL, NULL },
 
 	/* AMP controller UART */
-	{ "amp",	0x0000, 0x0000, HCI_UART_H4, 115200, 115200,
+	{ "amp",        0x0000, 0x0000, HCI_UART_H4, 115200, 115200,
 			AMP_DEV, DISABLE_PM, NULL, NULL, NULL },
+
+	/* aw869b */
+	{ "aic",        0x0000, 0x0000, HCI_UART_H4, 1500000, 1500000,
+			FLOW_CTL, DISABLE_PM, NULL, aic_init, aic_post},
 
 	{ NULL, 0 }
 };
@@ -1223,7 +1240,7 @@ static int init_uart(char *dev, struct uart_t *u, int send_break, int raw)
 #endif
 	if (u->init && u->init(fd, u, &ti) < 0)
 		goto fail;
-#if 0
+#if 1
 	tcflush(fd, TCIOFLUSH);
 	/* Set actual baudrate */
 	if (set_speed(fd, &ti, u->speed) < 0) {

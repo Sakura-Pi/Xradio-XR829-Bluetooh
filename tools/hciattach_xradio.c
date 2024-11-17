@@ -1559,10 +1559,10 @@ static int xradio_init(int type, int fd, int def_speed, int speed, struct termio
 		proc_reset(fd);
 	}
 
-	if (detection_cfg[type].hciup_flag) {
-		printf("[%s] bring up hci...\n", __FUNCTION__);
-		proc_enable_hci(fd);
-	}
+	// if (detection_cfg[type].hciup_flag) {
+	// 	printf("[%s] bring up hci...\n", __FUNCTION__);
+	// 	proc_enable_hci(fd);
+	// }
 
 	return 0;
 }
