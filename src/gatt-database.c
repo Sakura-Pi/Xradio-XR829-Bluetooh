@@ -3554,6 +3554,7 @@ struct btd_gatt_database *btd_gatt_database_new(struct btd_adapter *adapter)
 	database->ccc_callbacks = queue_new();
 
 	addr = btd_adapter_get_address(adapter);
+/*
 	database->le_io = bt_io_listen(connect_cb, NULL, NULL, NULL, &gerr,
 					BT_IO_OPT_SOURCE_BDADDR, addr,
 					BT_IO_OPT_SOURCE_TYPE,
@@ -3566,7 +3567,7 @@ struct btd_gatt_database *btd_gatt_database_new(struct btd_adapter *adapter)
 		g_error_free(gerr);
 		goto fail;
 	}
-
+*/
 	/* If just just 1 channel is enabled EATT is not required */
 	if (main_opts.gatt_channels == 1)
 		goto bredr;

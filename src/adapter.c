@@ -8243,7 +8243,7 @@ static int adapter_register(struct btd_adapter *adapter)
 	if (!(adapter->supported_settings & MGMT_SETTING_LE) ||
 					main_opts.mode == BT_MODE_BREDR)
 		goto load;
-
+/*
 	adapter->database = btd_gatt_database_new(adapter);
 	if (!adapter->database) {
 		btd_error(adapter->dev_id,
@@ -8251,7 +8251,7 @@ static int adapter_register(struct btd_adapter *adapter)
 		adapters = g_slist_remove(adapters, adapter);
 		return -EINVAL;
 	}
-
+*/
 	adapter->adv_manager = btd_adv_manager_new(adapter, adapter->mgmt);
 
 	db = btd_gatt_database_get_db(adapter->database);
