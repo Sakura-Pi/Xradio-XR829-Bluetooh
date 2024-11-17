@@ -52,6 +52,10 @@
 #define XR_BT_CONF_PATH_NAME "/etc/bluetooth/xr_bt.conf"
 #endif
 
+#ifndef ADDR_MGT_BT_PATH_NAME
+#define ADDR_MGT_BT_PATH_NAME "/sys/class/addr_mgt/addr_bt"
+#endif
+
 #define UNUSED(x)	(void)(x)
 
 #define SHOW_LOG		0
@@ -785,16 +789,31 @@ static int xradio_generate_bdaddr(unsigned char *buf)
 	int fd;
 	FILE* conf_fd = NULL;
 	unsigned mac_hex;
-	int i = 12; /* from MSB to LSB*/
+	int i; /* from MSB to LSB*/
+	int addr_bt_fd;
+	bdaddr_t bdaddr;
+	char addr_bt[18] = {'\0'};
+
+	addr_bt_fd = open(ADDR_MGT_BT_PATH_NAME, O_RDWR);
+	if (addr_bt_fd) {
+		read(addr_bt_fd, addr_bt, sizeof(addr_bt) - 1);
+		str2ba(addr_bt, &bdaddr);
+		for (i = 12; i >= 7; i--) {
+			buf[i] = bdaddr.b[i-7];
+		}
+		close(addr_bt_fd);
+		if (check_bdaddr_valid(buf))
+			return 0;
+	}
 
 	conf_fd = fopen(XR_BT_CONF_PATH_NAME, "r");
 	if(conf_fd) {
+		i = 12;
 		fscanf(conf_fd, "%x", &mac_hex);
 		while (!feof(conf_fd)) {
 			buf[i--] = mac_hex;
 			fscanf(conf_fd, "%x", &mac_hex);
 		}
-
 		fclose(conf_fd);
 
 		if (check_bdaddr_valid(buf))
