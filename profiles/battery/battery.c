@@ -358,7 +358,7 @@ static struct btd_profile batt_profile = {
 
 static int batt_init(void)
 {
-	return btd_profile_register(&batt_profile);
+	return -1;
 }
 
 static void batt_exit(void)
