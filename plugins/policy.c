@@ -277,6 +277,7 @@ static void sink_cb(struct btd_service *service, btd_service_state_t old_state,
 	case BTD_SERVICE_STATE_CONNECTING:
 		break;
 	case BTD_SERVICE_STATE_CONNECTED:
+		data->sink_retries = 0;
 		if (data->sink_timer > 0) {
 			g_source_remove(data->sink_timer);
 			data->sink_timer = 0;
@@ -428,6 +429,7 @@ static void source_cb(struct btd_service *service,
 	case BTD_SERVICE_STATE_CONNECTING:
 		break;
 	case BTD_SERVICE_STATE_CONNECTED:
+		data->source_retries = 0;
 		if (data->source_timer > 0) {
 			g_source_remove(data->source_timer);
 			data->source_timer = 0;
@@ -487,6 +489,7 @@ static void controller_cb(struct btd_service *service,
 	case BTD_SERVICE_STATE_CONNECTING:
 		break;
 	case BTD_SERVICE_STATE_CONNECTED:
+		data->ct_retries = 0;
 		if (data->ct_timer > 0) {
 			g_source_remove(data->ct_timer);
 			data->ct_timer = 0;
@@ -537,6 +540,7 @@ static void target_cb(struct btd_service *service,
 	case BTD_SERVICE_STATE_CONNECTING:
 		break;
 	case BTD_SERVICE_STATE_CONNECTED:
+		data->tg_retries = 0;
 		if (data->tg_timer > 0) {
 			g_source_remove(data->tg_timer);
 			data->tg_timer = 0;
