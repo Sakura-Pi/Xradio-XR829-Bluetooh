@@ -279,6 +279,11 @@ static int bcm43xx(int fd, struct uart_t *u, struct termios *ti)
 	return bcm43xx_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
 }
 
+static int xradio(int fd, struct uart_t *u, struct termios *ti)
+{
+	return xradio_init(fd, u->init_speed, u->speed, ti, u->bdaddr);
+}
+
 static int read_check(int fd, void *buf, int count)
 {
 	int res;
@@ -1091,6 +1096,9 @@ struct uart_t uart[] = {
 	{ "bcm43xx",    0x0000, 0x0000, HCI_UART_H4,   115200, 3000000,
 				FLOW_CTL, DISABLE_PM, NULL, bcm43xx, NULL  },
 
+	{ "xradio",0x0000, 0x0000, HCI_UART_H4,   115200, 1500000,
+	0, DISABLE_PM, NULL, xradio, NULL},
+
 	{ "ath3k",    0x0000, 0x0000, HCI_UART_ATH3K, 115200, 115200,
 			FLOW_CTL, DISABLE_PM, NULL, ath3k_ps, ath3k_pm  },
 
@@ -1161,7 +1169,11 @@ static int init_uart(char *dev, struct uart_t *u, int send_break, int raw)
 
 	cfmakeraw(&ti);
 
-	ti.c_cflag |= CLOCAL;
+/*	ti.c_cflag |= CLOCAL; */
+	ti.c_cflag |= CS8;
+	ti.c_cflag &= ~(PARENB | PARODD);
+	ti.c_cflag &= ~(CSTOPB);
+
 	if (u->flags & FLOW_CTL)
 		ti.c_cflag |= CRTSCTS;
 	else
@@ -1172,6 +1184,14 @@ static int init_uart(char *dev, struct uart_t *u, int send_break, int raw)
 		goto fail;
 	}
 
+	tcflush(fd, TCIOFLUSH);
+	if (tcsetattr(fd, TCSANOW, &ti) < 0) {
+		perror("Can't set port settings");
+		goto fail;
+	}
+	tcflush(fd, TCIOFLUSH);
+	tcflush(fd, TCIOFLUSH);
+
 	/* Set initial baudrate */
 	if (set_speed(fd, &ti, u->init_speed) < 0) {
 		perror("Can't set initial baud rate");
@@ -1179,17 +1199,16 @@ static int init_uart(char *dev, struct uart_t *u, int send_break, int raw)
 	}
 
 	tcflush(fd, TCIOFLUSH);
-
+#if 0
 	if (send_break) {
 		tcsendbreak(fd, 0);
 		usleep(500000);
 	}
-
+#endif
 	if (u->init && u->init(fd, u, &ti) < 0)
 		goto fail;
-
+#if 0
 	tcflush(fd, TCIOFLUSH);
-
 	/* Set actual baudrate */
 	if (set_speed(fd, &ti, u->speed) < 0) {
 		perror("Can't set baud rate");
@@ -1215,7 +1234,7 @@ static int init_uart(char *dev, struct uart_t *u, int send_break, int raw)
 
 	if (u->post && u->post(fd, u, &ti) < 0)
 		goto fail;
-
+#endif
 	return fd;
 
 fail:
