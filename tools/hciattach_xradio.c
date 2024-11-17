@@ -313,8 +313,8 @@ enum {
 #endif
 
 /* proc fs node for sleep bt device */
-#ifndef VENDOR_BTWAKE_PROC_NODE
-#define VENDOR_BTWAKE_PROC_NODE	"/proc/bluetooth/sleep/btwrite"
+#ifndef VENDOR_BTWRITE_PROC_NODE
+#define VENDOR_BTWRITE_PROC_NODE	"/proc/bluetooth/sleep/btwrite"
 #endif
 
 #ifndef VENDOR_BTWAKE_PROC_NODE
@@ -1550,5 +1550,8 @@ int xradio_init(int fd, int def_speed, int speed, struct termios *ti,
 		proc_enable_hci(fd);
 	}
 
+#ifdef CONFIG_XR829_BT_LPM
+    upio_set(UPIO_LPM_MODE, UPIO_ASSERT, 0);
+#endif
 	return 0;
 }
