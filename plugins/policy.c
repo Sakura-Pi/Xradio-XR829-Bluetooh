@@ -64,11 +64,10 @@ struct reconnect_data {
 	unsigned int attempt;
 };
 
-static const char *default_reconnect[] = {
-			HSP_AG_UUID, HFP_AG_UUID, A2DP_SOURCE_UUID, NULL };
+static const char *default_reconnect[] = { NULL };
 static char **reconnect_uuids = NULL;
 
-static const size_t default_attempts = 7;
+static const size_t default_attempts = 0;
 static size_t reconnect_attempts = 0;
 
 static const int default_intervals[] = { 1, 2, 4, 8, 16, 32, 64 };
